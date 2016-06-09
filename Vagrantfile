@@ -3,14 +3,17 @@
 
 require_relative 'vagrant_rancheros_guest_plugin.rb'
 
+# IP addresses for rancher server and base net for nodes
+$base_net = "172.19.8"
+$first_ip = 100
+$rs_ip = $base_net + ".#{$first_ip}"
+
 # To enable rsync folder share change to false
 $rsync_folder_disabled = true
 $number_of_nodes = 1
 $vm_mem = "1024"
 $vb_gui = false
-$node_script = <<SCRIPT
-uname -a
-SCRIPT
+
 $rs_vm_mem = "1024"
 $rs_vb_gui = false
 $rs_script = <<SCRIPT
@@ -33,8 +36,7 @@ Vagrant.configure(2) do |config|
       vb.gui =$rs_vm_gui
     end
 
-    ip = "172.19.8.10"
-    node.vm.network "private_network", ip: ip
+    node.vm.network "private_network", ip: $rs_ip
     node.vm.hostname = rhostname
 
     node.vm.synced_folder ".", "/opt/rancher", type: "rsync",
@@ -52,7 +54,7 @@ Vagrant.configure(2) do |config|
             vb.gui = $vb_gui
         end
 
-        ip = "172.19.8.#{i+100}"
+        ip = "#{$base_net}.#{i+$first_ip}"
         node.vm.network "private_network", ip: ip
         node.vm.hostname = hostname
 
@@ -62,7 +64,10 @@ Vagrant.configure(2) do |config|
             rsync__exclude: ".git/", rsync__args: ["--verbose", "--archive", "--delete", "--copy-links"],
             disabled: $rsync_folder_disabled
 
-        node.vm.provision "shell", inline: $node_script
+        node.vm.provision "shell", inline: <<-SCRIPT
+          echo "show hostname"
+          sudo ros config get hostname  2>&1
+        SCRIPT
     end
   end
 end

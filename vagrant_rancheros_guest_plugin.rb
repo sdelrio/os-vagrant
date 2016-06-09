@@ -64,6 +64,7 @@ module VagrantPlugins
                     machine.communicate.tap do |comm|
                         if !comm.test("sudo hostname --fqdn | grep '#{name}'")
                             comm.sudo("hostname #{name.split('.')[0]}")
+                            comm.sudo("ros config set hostname #{name.split('.')[0]}")
                         end
                     end
                 end
