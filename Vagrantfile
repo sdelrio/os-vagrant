@@ -9,7 +9,7 @@ $number_of_nodes = 1
 $vm_mem = "1024"
 $vb_gui = false
 $node_script = <<SCRIPT
-docker pull rancher/agent
+uname -a
 SCRIPT
 $rs_vm_mem = "1024"
 $rs_vb_gui = false
